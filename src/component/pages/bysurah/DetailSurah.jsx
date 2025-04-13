@@ -84,7 +84,7 @@ function DetailSurah() {
   return (
     <div className="h-full flex flex-col text-white">
       {surahInfo && (
-        <div className="cormorant-garamond-regular sticky top-0 z-20 bg-gradient-to-r from-gray-800 to-gray-950 p-5 border-b rounded-md shadow-md text-center">
+        <div className="cormorant-garamond-regular sticky top-0 z-20 bg-gradient-to-r from-gray-950 to-gray-800 p-5 border-b rounded-md shadow-md text-center">
           <h2 className="text-3xl tracking-wide">
             {surahInfo.name_complex.toUpperCase()} -{" "}
             {surahInfo.translated_name.name.toUpperCase()}
