@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import { useEffect, useState } from "react";
 
 const LANGUAGES = {
@@ -11,6 +11,7 @@ const LANGUAGES = {
 
 function DetailSurah() {
   const { id } = useParams();
+  const navigate = useNavigate(); // Use useNavigate hook
   const [verses, setVerses] = useState([]);
   const [translations, setTranslations] = useState([]);
   const [reciters, setReciters] = useState([]);
@@ -107,7 +108,7 @@ function DetailSurah() {
           +
         </button>
         <button
-          onClick={() => (window.location.href = "/readquran/bysurah")}
+          onClick={() => navigate("/readquran/bysurah")} // Use navigate instead of window.location.href
           className="bg-gray-600 cormorant-garamond-regular hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           Back
