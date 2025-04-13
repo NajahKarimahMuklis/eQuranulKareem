@@ -12,7 +12,7 @@ function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="bg-gradient-to-r from-gray-800 to-gray-950 sticky top-0 z-20 p-4 w-full">
+    <div className="bg-gradient-to-r from-gray-700 to-gray-950 sticky top-0 z-20 p-4 w-full">
       <div className="w-full h-full">
         <h1 className="reem-kufi text-3xl sm:text-5xl md:text-5xl font-bold mb-6 mt-5 text-center text-white">
           القرآن الكريم
