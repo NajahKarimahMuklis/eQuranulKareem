@@ -80,7 +80,7 @@ w-full lg:w-1/4 fixed lg:static lg:block ${
                 surah.id.toString() === id ? "bg-gray-200 font-semibold" : ""
               }`}
             >
-              <div className="  p-3 shadow-xl rounded-lg flex items-center justify-between text-xl">
+              <div className="  p-3 shadow-xl rounded-lg flex items-center justify-between text-md">
                 {/* Kiri: versemarker + nama Latin */}
                 <div className="flex items-center gap-3">
                   <span className="relative w-16 h-16 inline-block">
@@ -99,7 +99,7 @@ w-full lg:w-1/4 fixed lg:static lg:block ${
                 </div>
 
                 {/* Kanan: Nama Arab */}
-                <span className="font-arabic text-xl">{surah.name_arabic}</span>
+                <span className="font-arabic text-md">{surah.name_arabic}</span>
               </div>
             </li>
           ))}

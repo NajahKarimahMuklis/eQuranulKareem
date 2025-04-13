@@ -1,118 +1,83 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
+const TRANSLATIONS = [
+  { id: 33, name: "Indonesian" },
+  { id: 131, name: "English" },
+  { id: 218, name: "Japanese" },
+  { id: 90, name: "Turkish" },
+  { id: 134, name: "Malay" },
+];
 
 function DetailPage() {
   const { pageNumber } = useParams();
+  const navigate = useNavigate();
   const [verses, setVerses] = useState([]);
-  const [translations, setTranslations] = useState([]);
   const [reciters, setReciters] = useState([]);
   const [selectedReciter, setSelectedReciter] = useState(null);
   const [audioUrl, setAudioUrl] = useState({});
   const [audioPlaying, setAudioPlaying] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fontSize, setFontSize] = useState(36);
-
-  const [availableTranslations] = useState([
-    { id: 33, name: "Indonesian" },
-    { id: 131, name: "English" },
-    { id: 218, name: "Japanese" },
-    { id: 90, name: "Turkish" },
-    { id: 134, name: "Malay" },
-    
-  ]);
-  
   const [selectedTranslationId, setSelectedTranslationId] = useState(33);
 
   useEffect(() => {
     fetch("https://api.quran.com/api/v4/resources/recitations")
       .then((res) => res.json())
-      .then((data) => {
-        const allowedIds = [2, 3, 4, 5, 6, 7, 9, 10, 11];
-        const selected = data.recitations.filter((r) =>
-          allowedIds.includes(r.id)
-        );
-        setReciters(selected);
-      });
+      .then((data) =>
+        setReciters(
+          data.recitations.filter((r) =>
+            [2, 3, 4, 5, 6, 7, 9, 10, 11].includes(r.id)
+          )
+        )
+      );
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!pageNumber) return;
-      setLoading(true);
-      try {
-        const [translationRes, arabicRes] = await Promise.all([
-          fetch(
-            `https://api.quran.com/api/v4/verses/by_page/${pageNumber}?language=id&translations=${selectedTranslationId}&words=false`
-          ).then((res) => res.json()),
-          fetch(
-            `https://api.quran.com/api/v4/verses/by_page/${pageNumber}?fields=text_uthmani`
-          ).then((res) => res.json()),
-        ]);
-
-        const translations = translationRes.verses;
-        const arabicVerses = arabicRes.verses;
-
-        const formatted = arabicVerses.map((v, i) => ({
+    if (!pageNumber) return;
+    setLoading(true);
+    Promise.all([
+      fetch(
+        `https://api.quran.com/api/v4/verses/by_page/${pageNumber}?language=id&translations=${selectedTranslationId}&words=false`
+      ).then((res) => res.json()),
+      fetch(
+        `https://api.quran.com/api/v4/verses/by_page/${pageNumber}?fields=text_uthmani`
+      ).then((res) => res.json()),
+    ])
+      .then(([transRes, arabicRes]) => {
+        const formatted = arabicRes.verses.map((v, i) => ({
           id: v.id,
           verse_key: v.verse_key,
           text_uthmani: v.text_uthmani,
-          translation: translations?.[i]?.translations?.[0]?.text || "",
+          translation: transRes.verses?.[i]?.translations?.[0]?.text || "",
         }));
-
         setVerses(formatted);
-        setTranslations(translations);
-      } catch (err) {
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [pageNumber, selectedTranslationId]);
 
   useEffect(() => {
     if (!selectedReciter || !verses.length) return;
-
-    const fetchAudio = async () => {
-      try {
-        const audioRes = await fetch(
-          `https://api.quran.com/api/v4/recitations/${selectedReciter}/by_page/${pageNumber}`
-        );
-        const audioData = await audioRes.json();
-
-        const audioFiles = audioData.audio_files;
-        const audioMap = audioFiles.reduce((acc, file) => {
-          acc[file.verse_key] = `https://verses.quran.com/${file.url}`;
-          return acc;
-        }, {});
-
+    fetch(
+      `https://api.quran.com/api/v4/recitations/${selectedReciter}/by_page/${pageNumber}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const audioMap = {};
+        data.audio_files.forEach((file) => {
+          audioMap[file.verse_key] = `https://verses.quran.com/${file.url}`;
+        });
         setAudioUrl(audioMap);
-      } catch (err) {
-        console.error("Audio fetch error:", err);
-      }
-    };
-
-    fetchAudio();
+      })
+      .catch(console.error);
   }, [selectedReciter, verses, pageNumber]);
 
-  const handleSelectReciter = (reciterId) => {
-    setSelectedReciter(reciterId);
-    setAudioUrl({});
-  };
-
-  const zoomIn = () => setFontSize((prev) => Math.min(prev + 4, 60));
-  const zoomOut = () => setFontSize((prev) => Math.max(prev - 4, 16));
-
-  const handlePlayAudio = (verseKey) => {
-    if (audioPlaying) {
-      const existingAudio = new Audio(audioUrl[audioPlaying]);
-      existingAudio.pause();
-    }
-
-    const audio = new Audio(audioUrl[verseKey]);
+  const handlePlayAudio = (key) => {
+    if (audioPlaying) new Audio(audioUrl[audioPlaying]).pause();
+    const audio = new Audio(audioUrl[key]);
     audio.play();
-    setAudioPlaying(verseKey);
+    setAudioPlaying(key);
   };
 
   return (
@@ -123,21 +88,21 @@ function DetailPage() {
         </h2>
       </div>
 
-      <div className="flex gap-3 pb-4 justify-start mt-4 px-4">
+      <div className="flex gap-3 pb-4 mt-4 px-4">
         <button
-          onClick={zoomOut}
+          onClick={() => setFontSize((f) => Math.max(f - 4, 16))}
           className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           -
         </button>
         <button
-          onClick={zoomIn}
+          onClick={() => setFontSize((f) => Math.min(f + 4, 60))}
           className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           +
         </button>
         <button
-          onClick={() => (window.location.href = "/readquran/bypage")}
+          onClick={() => navigate("/readquran/bypage")}
           className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           Back
@@ -146,17 +111,16 @@ function DetailPage() {
 
       <div className="mb-4 px-4 space-y-3">
         <div>
-          <label
-            htmlFor="reciter"
-            className="block text-sm font-medium text-gray-300"
-          >
+          <label className="block text-sm font-medium text-gray-300">
             Pilih Qari
           </label>
           <select
-            id="reciter"
-            className="bg-gray-100 mt-1 block w-full p-2 border border-gray-300 text-gray-500 rounded-md"
-            onChange={(e) => handleSelectReciter(e.target.value)}
+            className="bg-gray-100 mt-1 w-full p-2 border border-gray-300 text-gray-500 rounded-md"
             value={selectedReciter || ""}
+            onChange={(e) => {
+              setSelectedReciter(e.target.value);
+              setAudioUrl({});
+            }}
           >
             <option value="" disabled>
               Pilih Qari
@@ -170,19 +134,15 @@ function DetailPage() {
         </div>
 
         <div>
-          <label
-            htmlFor="translation"
-            className="block text-sm font-medium text-gray-300"
-          >
+          <label className="block text-sm font-medium text-gray-300">
             Pilih Terjemahan
           </label>
           <select
-            id="translation"
-            className="bg-gray-100 mt-1 block w-full p-2 border border-gray-300 text-gray-500 rounded-md"
-            onChange={(e) => setSelectedTranslationId(e.target.value)}
+            className="bg-gray-100 mt-1 w-full p-2 border border-gray-300 text-gray-500 rounded-md"
             value={selectedTranslationId}
+            onChange={(e) => setSelectedTranslationId(e.target.value)}
           >
-            {availableTranslations.map((t) => (
+            {TRANSLATIONS.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
               </option>
@@ -192,20 +152,21 @@ function DetailPage() {
       </div>
 
       <div className="text-gray-900 overflow-y-auto flex-1 px-4 py-6 space-y-6">
-        {loading && <p>Memuat ayat-ayat...</p>}
-        {!loading &&
+        {loading ? (
+          <p>Memuat ayat-ayat...</p>
+        ) : (
           verses.map((verse) => (
             <div key={verse.id} className="border-b border-stone-300 pb-6">
               <p
                 className="amiri-regular text-right leading-loose font-arabic"
-                style={{ fontSize: `${fontSize}px` }}
+                style={{ fontSize }}
                 dangerouslySetInnerHTML={{ __html: verse.text_uthmani }}
               ></p>
               <p className="cormorant-garamond-regular text-xl text-gray-800 mt-4 leading-relaxed">
                 <span className="text-gray-400 font-semibold">
                   {verse.verse_key.split(":")[1]}.
                 </span>{" "}
-                {(verse.translation || "Translation not available")
+                {verse.translation
                   .replace(/<sup[^>]*>.*?<\/sup>/g, "")
                   .replace(/<[^>]*>/g, "")
                   .replace(/[٠-٩]+$/, "")}
@@ -224,7 +185,8 @@ function DetailPage() {
                 </div>
               )}
             </div>
-          ))}
+          ))
+        )}
       </div>
     </div>
   );

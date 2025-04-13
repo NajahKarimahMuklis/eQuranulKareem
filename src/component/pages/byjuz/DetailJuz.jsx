@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-// Bahasa-bahasa yang didukung
 const LANGUAGES = {
   id: { name: "Indonesian", id: 33 },
   en: { name: "English", id: 131 },
@@ -18,6 +17,8 @@ function DetailJuz() {
   const [selectedLang, setSelectedLang] = useState(
     localStorage.getItem("selectedLang") || "id"
   );
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (juzNumber) {
@@ -89,7 +90,7 @@ function DetailJuz() {
           +
         </button>
         <button
-          onClick={() => (window.location.href = "/readquran/byjuz")}
+          onClick={() => navigate("/readquran/byjuz")}
           className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           Back
@@ -135,8 +136,7 @@ function DetailJuz() {
                 </span>{" "}
                 {verse.translation
                   .replace(/<sup[^>]*>.*?<\/sup>/g, "")
-                  .replace(/<[^>]*>/g, "")
-                }
+                  .replace(/<[^>]*>/g, "")}
               </p>
             </div>
           ))}

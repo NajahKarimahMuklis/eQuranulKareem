@@ -22,7 +22,7 @@ function DetailSurah() {
   const [loading, setLoading] = useState(false);
   const [surahInfo, setSurahInfo] = useState(null);
   const [fontSize, setFontSize] = useState(36);
-  const [showAyat, setShowAyat] = useState(true); // state for hiding/showing verses
+  const [showAyat, setShowAyat] = useState(true);
 
   useEffect(() => {
     fetch(`https://api.quran.com/api/v4/chapters/${id}?language=id`)
@@ -32,7 +32,6 @@ function DetailSurah() {
 
   useEffect(() => {
     setLoading(true);
-
     Promise.all([
       fetch(
         `https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`
@@ -40,9 +39,9 @@ function DetailSurah() {
       fetch(
         `https://api.quran.com/api/v4/quran/translations/${LANGUAGES[selectedLang].id}?chapter_number=${id}`
       ).then((res) => res.json()),
-    ]).then(([verseData, translationData]) => {
-      setVerses(verseData.verses);
-      setTranslations(translationData.translations);
+    ]).then(([vData, tData]) => {
+      setVerses(vData.verses);
+      setTranslations(tData.translations);
       setLoading(false);
     });
   }, [id, selectedLang]);
@@ -50,19 +49,18 @@ function DetailSurah() {
   useEffect(() => {
     fetch("https://api.quran.com/api/v4/resources/recitations")
       .then((res) => res.json())
-      .then((data) => {
-        const allowedIds = [2, 3, 4, 5, 6, 7, 9, 10, 11];
-        const selected = data.recitations.filter((r) =>
-          allowedIds.includes(r.id)
-        );
-        setReciters(selected);
-      });
+      .then((data) =>
+        setReciters(
+          data.recitations.filter((r) =>
+            [2, 3, 4, 5, 6, 7, 9, 10, 11].includes(r.id)
+          )
+        )
+      );
   }, []);
 
   useEffect(() => {
     if (verses.length) {
-      const lastVerseKey = verses[verses.length - 1]?.verse_key;
-
+      const lastVerseKey = verses[verses.length - 1].verse_key;
       localStorage.setItem(
         "lastRead",
         JSON.stringify({
@@ -79,16 +77,7 @@ function DetailSurah() {
     setSelectedReciter(reciterId);
     fetch(`https://api.quran.com/api/v4/chapter_recitations/${reciterId}/${id}`)
       .then((res) => res.json())
-      .then((data) => {
-        setAudioUrl(data.audio_file.audio_url);
-      });
-  };
-
-  const zoomIn = () => setFontSize((prev) => Math.min(prev + 4, 60));
-  const zoomOut = () => setFontSize((prev) => Math.max(prev - 4, 16));
-
-  const toggleAyatVisibility = () => {
-    setShowAyat((prev) => !prev);
+      .then((data) => setAudioUrl(data.audio_file.audio_url));
   };
 
   return (
@@ -100,32 +89,32 @@ function DetailSurah() {
             {surahInfo.translated_name.name.toUpperCase()}
           </h2>
           <p className="text-sm mt-1">{surahInfo.verses_count} Ayat</p>
-          {surahInfo.revelation_place.toUpperCase()}
+          <p>{surahInfo.revelation_place.toUpperCase()}</p>
         </div>
       )}
 
       <div className="flex gap-3 pb-7 justify-start mt-4 px-4">
         <button
-          onClick={zoomOut}
+          onClick={() => setFontSize((f) => Math.max(f - 4, 16))}
           className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           -
         </button>
         <button
-          onClick={zoomIn}
+          onClick={() => setFontSize((f) => Math.min(f + 4, 60))}
           className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           +
         </button>
         <button
           onClick={() => (window.location.href = "/readquran/bysurah")}
-          className="bg-gray-600 cormorant-garamond-regular hover:bg-gray-500 text-white px-4 py-1 rounded"
+          className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           Back
         </button>
         <button
-          onClick={toggleAyatVisibility}
-          className="bg-yellow-600 cormorant-garamond-regular hover:bg-yellow-500 text-white px-4 py-1 rounded"
+          onClick={() => setShowAyat((v) => !v)}
+          className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-1 rounded"
         >
           {showAyat ? "Sembunyikan Ayat" : "Tampilkan Ayat"}
         </button>
@@ -133,7 +122,7 @@ function DetailSurah() {
 
       <div className="text-gray-950 overflow-y-auto flex-1 px-4 py-6 space-y-6">
         {/* Language Selector */}
-        <div className="mb-4 cormorant-garamond-regular">
+        <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">
             Pilih Bahasa Terjemahan
           </label>
@@ -154,18 +143,14 @@ function DetailSurah() {
         </div>
 
         {/* Reciter Selector */}
-        <div className="mb-4 cormorant-garamond-regular">
-          <label
-            htmlFor="reciter"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
             Pilih Qari
           </label>
           <select
-            id="reciter"
-            className="bg-gray-100 mt-1 block w-full p-2 border border-gray-300 text-gray-500 rounded-md"
-            onChange={(e) => handleSelectReciter(e.target.value)}
             value={selectedReciter || ""}
+            onChange={(e) => handleSelectReciter(e.target.value)}
+            className="bg-gray-100 mt-1 block w-full p-2 border border-gray-300 text-gray-500 rounded-md"
           >
             <option value="" disabled>
               Pilih Qari
@@ -187,25 +172,26 @@ function DetailSurah() {
           </div>
         )}
 
-        {/* Ayat Display */}
-        {loading && <p>Loading ayat...</p>}
-        {!loading && (
+        {/* Verses */}
+        {loading ? (
+          <p>Loading ayat...</p>
+        ) : (
           <div className="space-y-10">
-            {verses.map((verse, index) => (
+            {verses.map((verse, i) => (
               <div key={verse.id} className="border-b border-stone-700 pb-6">
                 {showAyat && (
                   <p
                     className="amiri-regular text-right leading-loose font-arabic"
                     style={{ fontSize: `${fontSize}px` }}
                     dangerouslySetInnerHTML={{ __html: verse.text_uthmani }}
-                  ></p>
+                  />
                 )}
-                {translations[index] && (
+                {translations[i] && (
                   <p className="cormorant-garamond-regular text-xl text-gray-800 mt-4 leading-relaxed">
                     <span className="text-gray-400 font-semibold">
                       {verse.verse_key.split(":")[1]}.
                     </span>{" "}
-                    {translations[index].text
+                    {translations[i].text
                       .replace(/<sup[^>]*>.*?<\/sup>/g, "")
                       .replace(/<[^>]*>/g, "")}
                   </p>
