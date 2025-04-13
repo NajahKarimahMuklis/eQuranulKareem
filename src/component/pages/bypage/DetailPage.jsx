@@ -103,13 +103,13 @@ function DetailPage() {
         </button>
         <button
           onClick={() => navigate("/readquran/bypage")}
-          className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
+          className="bg-gray-600 cormorant-garamond-regular hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           Back
         </button>
       </div>
 
-      <div className="mb-4 px-4 space-y-3">
+      <div className="mb-4 cormorant-garamond-regular px-4 space-y-3">
         <div>
           <label className="block text-sm font-medium text-gray-300">
             Pilih Qari
@@ -134,7 +134,7 @@ function DetailPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300">
+          <label className="cormorant-garamond-regular block text-sm font-medium text-gray-300">
             Pilih Terjemahan
           </label>
           <select

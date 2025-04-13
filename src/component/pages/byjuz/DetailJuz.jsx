@@ -91,14 +91,14 @@ function DetailJuz() {
         </button>
         <button
           onClick={() => navigate("/readquran/byjuz")}
-          className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
+          className="bg-gray-600 hover:bg-gray-500 cormorant-garamond-regular text-white px-4 py-1 rounded"
         >
           Back
         </button>
       </div>
 
       {/* Language Selector */}
-      <div className="px-4">
+      <div className="px-4 cormorant-garamond-regular">
         <label className="block text-sm font-medium text-gray-300 mb-1">
           Pilih Bahasa Terjemahan
         </label>

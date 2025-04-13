@@ -108,13 +108,13 @@ function DetailSurah() {
         </button>
         <button
           onClick={() => (window.location.href = "/readquran/bysurah")}
-          className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded"
+          className="bg-gray-600 cormorant-garamond-regular hover:bg-gray-500 text-white px-4 py-1 rounded"
         >
           Back
         </button>
         <button
           onClick={() => setShowAyat((v) => !v)}
-          className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-1 rounded"
+          className="bg-neutral-500 hover:bg-neutral-300 cormorant-garamond-regular text-white px-4 py-1 rounded"
         >
           {showAyat ? "Sembunyikan Ayat" : "Tampilkan Ayat"}
         </button>
@@ -122,7 +122,7 @@ function DetailSurah() {
 
       <div className="text-gray-950 overflow-y-auto flex-1 px-4 py-6 space-y-6">
         {/* Language Selector */}
-        <div className="mb-4">
+        <div className="mb-4 cormorant-garamond-regular">
           <label className="block text-sm font-medium text-gray-700">
             Pilih Bahasa Terjemahan
           </label>
@@ -143,7 +143,7 @@ function DetailSurah() {
         </div>
 
         {/* Reciter Selector */}
-        <div className="mb-4">
+        <div className="mb-4 cormorant-garamond-regular">
           <label className="block text-sm font-medium text-gray-700">
             Pilih Qari
           </label>

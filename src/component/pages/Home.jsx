@@ -10,10 +10,10 @@ function Home() {
 
       <div id="home" className="w-screen h-screen bg-gray-950 pt-30 ">
         <section
-          className="overflow-hidden  bg-cover bg-top bg-no-repeat"
+          className="overflow-hidden  w-full bg-cover bg-top bg-no-repeat"
           style={{ backgroundImage: `url(${ctaImage})` }}
         >
-          <div className="bg-black/50  p-12  lg:px-16 lg:py-24">
+          <div className="bg-black/25  p-12  lg:px-16 lg:py-24">
             <div className="text-center ltr:sm:text-left rtl:sm:text-right">
               
               <h2 className="text-4xl mb-3 cinzel-decorative-regular font-bold text-white md:text-8xl">
